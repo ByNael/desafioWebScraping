@@ -8,14 +8,42 @@ from bs4 import BeautifulSoup
 from selenium import webdriver
 from time import sleep
 from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 
+
+def enviar_email(destinatario, assunto, corpo):
+    remetente = ""  # Insira seu endereço de e-mail
+    senha = ""  # Insira sua senha
+    sleep(1)
+
+    # Configuração do servidor SMTP do Gmail
+    server = smtplib.SMTP('smtp.gmail.com', 587)
+    server.starttls()
+    server.login(remetente, senha)
+    sleep(1)
+
+    # Criação do e-mail
+    msg = MIMEMultipart()
+    msg['From'] = remetente
+    msg['To'] = destinatario
+    msg['Subject'] = assunto
+    msg.attach(MIMEText(corpo, 'plain'))
+    sleep(1)
+
+    # Envio do e-mail
+    server.send_message(msg)
+    del msg
+    server.quit()
+
 # A classe service é usada para iniciar uma instância do chrome webdriver
 service = Service()
+options = Options()
 
 # wevdriver.ChromeOptions é usado para definir a preferência para o browser do Chrome
-options = webdriver.ChromeOptions()
+
+options.headless = True
 
 # Inicia-se a instância do chrome webdriver com as definicads 'options' e 'service'
 driver = webdriver.Chrome(service=service, options=options)
@@ -65,30 +93,6 @@ sleep(1)
 
 DF.to_csv("documentacaoComplementar.csv", encoding="UTF-8", sep=";", index=False)
 DFfiltrado.to_csv("documentacaoComplementarFiltrada.csv", encoding="UTF-8", sep=";", index=False)
-
-def enviar_email(destinatario, assunto, corpo):
-    remetente = "complementardocumentacao@gmail.com"  # Insira seu endereço de e-mail
-    senha = "documentacaoComplementar123"  # Insira sua senha
-    sleep(1)
-
-    # Configuração do servidor SMTP do Gmail
-    server = smtplib.SMTP('smtp.gmail.com', 587)
-    server.starttls()
-    server.login(remetente, senha)
-    sleep(1)
-
-    # Criação do e-mail
-    msg = MIMEMultipart()
-    msg['From'] = remetente
-    msg['To'] = destinatario
-    msg['Subject'] = assunto
-    msg.attach(MIMEText(corpo, 'plain'))
-    sleep(1)
-
-    # Envio do e-mail
-    server.send_message(msg)
-    del msg
-    server.quit()
 
 # Carrega o arquivo CSV com os dados da documentação
 DFread = pd.read_csv("documentacaoComplementarFiltrada.csv", sep=";")
